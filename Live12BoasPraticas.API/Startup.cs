@@ -1,4 +1,9 @@
+using FluentValidation.AspNetCore;
+using Live12BoasPraticas.API.Application.Extensions;
 using Live12BoasPraticas.API.Application.Services;
+using Live12BoasPraticas.API.Extensions;
+using Live12BoasPraticas.API.Filters;
+using Live12BoasPraticas.API.Infrastructure.Extensions;
 using Live12BoasPraticas.API.Infrastructure.Integration;
 using Live12BoasPraticas.API.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -22,13 +27,12 @@ namespace Live12BoasPraticas.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IPeopleService, PeopleService>();
+            services
+                .AddApplication()
+                .AddInfrastructure();
 
-            services.AddScoped<IPeopleRepository, PeopleRepository>();
-
-            services.AddScoped<IErpIntegrationService, ErpIntegrationService>();
-            
-            services.AddControllers();
+            services.AddControllers(options => options.Filters.Add(typeof(ValidationFilter)))
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c =>
             {
